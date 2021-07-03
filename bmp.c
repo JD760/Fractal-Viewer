@@ -5,14 +5,14 @@
 
 int pixelsToBitmap(int width, int height);
 void splitBytes(unsigned char *arr, int startAddr, int num);
-
-// test for commit
+void createPixelData(int startingIndex, unsigned char *bitmap, int pixelDataSize, int paddingBytes, int width, int height);
+void calculatePoint(int h, int currentByteNum, int width, int height, unsigned char *colourBGR);
 
 int main()
 {
     time_t seconds;
     seconds = time(NULL);
-    pixelsToBitmap(640, 400);
+    pixelsToBitmap(640, 400); // 640 x 400 for mandelbrot
 
 
     // leave this last
@@ -24,16 +24,20 @@ void createPixelData(int startingIndex, unsigned char *bitmap, int pixelDataSize
 {
     int currentByteNum = 0;
     int totalBytesIterated = 0;
-    for (int h = 1; h < height+1; h++)
+    unsigned char *ColourBGR = malloc(sizeof(unsigned char) * 3);
+    for (int h = 0; h < height; h++)
     {
         currentByteNum = 0;
         // set pixel colours
         while (currentByteNum < (width * 3))
         {
-            //printf("Byte number: %d , value: %d , bitmap index: %d\n", totalBytesIterated, 64, startingIndex + totalBytesIterated);
-            bitmap[startingIndex + totalBytesIterated] = 64;
-            totalBytesIterated++;
-            currentByteNum++;
+            calculatePoint(h, currentByteNum, width, height, ColourBGR);
+
+            bitmap[startingIndex + totalBytesIterated] = ColourBGR[0];
+            bitmap[startingIndex + totalBytesIterated + 1] = ColourBGR[1];
+            bitmap[startingIndex + totalBytesIterated + 2] = ColourBGR[2];
+            totalBytesIterated+= 3;
+            currentByteNum+= 3;
         }
         // add padding
         for (int i = 0; i < paddingBytes; i++)
@@ -43,6 +47,55 @@ void createPixelData(int startingIndex, unsigned char *bitmap, int pixelDataSize
             totalBytesIterated++;
         }
     }
+}
+
+void calculatePoint(int h, int currentByteNum, int width, int height, unsigned char *colourBGR)
+{
+    // x,y position of pixel
+    int x = currentByteNum / 3;
+    int y = h;
+    int iterations = 100;
+    int zoom = 1;
+    int cenX = 0;
+    int cenY = 0;
+    int inSet = 1;
+    // calculate whether pixel is in the mandelbrot set
+    int i = 0; // keep track of how many iterations have passed
+
+    // initial values for real and imaginary components
+    long double point[2];
+    point[0] = (x - width/2) * (4/width) * (16/(9 * zoom)) + cenX;
+    point[1] = (y - height/2) * (4/height) * (1/zoom) + cenY;
+
+    long double currentVal[2];
+    currentVal[0] = 0; currentVal[1] = 0;
+
+    while ( i < iterations && inSet == 0)
+    {
+        currentVal[0] = (currentVal[0] * currentVal[0]) - (currentVal[1] * currentVal[1]) + point[0];
+        currentVal[1] = (2 * currentVal[0] * currentVal[0]) + point[1];
+        i++;
+        if (currentVal[0] > 2)
+        {
+            inSet = 0;
+            break;
+        }
+    }
+
+    if (inSet == 1)
+    {
+        colourBGR[0] = 0;
+        colourBGR[1] = 0;
+        colourBGR[2] = 0;
+    }
+    else
+    {
+        colourBGR[0] = 255;
+        colourBGR[1] = 255;
+        colourBGR[2] = 255;
+    }
+
+    printf("Point x: %d , y: %d inSet: %d\n", x,y,inSet);
 }
 
 // creates a bitmap file from a table of pixel data
