@@ -6,6 +6,8 @@
 int pixelsToBitmap(int width, int height);
 void splitBytes(unsigned char *arr, int startAddr, int num);
 
+// test for commit
+
 int main()
 {
     time_t seconds;
