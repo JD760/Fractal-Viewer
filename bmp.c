@@ -75,7 +75,7 @@ void calculatePoint(int h, int currentByteNum, int width, int height, unsigned c
         currentVal[0] = (currentVal[0] * currentVal[0]) - (currentVal[1] * currentVal[1]) + point[0];
         currentVal[1] = (2 * currentVal[0] * currentVal[0]) + point[1];
         i++;
-        if (currentVal[0] > 2)
+        if (sqrt((currentVal[0] * currentVal[0]) + (currentVal[1] * currentVal[1])) > 4)
         {
             inSet = 0;
             break;
