@@ -3,16 +3,27 @@
 #include <math.h>
 #include <time.h>
 
+struct Colour{
+    unsigned char red;
+    unsigned char green;
+    unsigned char blue;
+};
+
+struct Point{
+    long double x;
+    long double y;
+};
+
 int pixelsToBitmap(int width, int height);
 void splitBytes(unsigned char *arr, int startAddr, int num);
 void createPixelData(int startingIndex, unsigned char *bitmap, int pixelDataSize, int paddingBytes, int width, int height);
-void calculatePoint(int h, int currentByteNum, int width, int height, unsigned char *colourBGR);
+struct Colour calculatePoint(int x, int y, int width, int height, short iterationsMax, long double scale, struct Colour pixelColour, struct Point center);
 
 int main()
 {
     time_t seconds;
     seconds = time(NULL);
-    pixelsToBitmap(640, 400); // 640 x 400 for mandelbrot
+    pixelsToBitmap(3840, 2160); // 640 x 400 for mandelbrot
 
 
     // leave this last
@@ -22,20 +33,28 @@ int main()
 
 void createPixelData(int startingIndex, unsigned char *bitmap, int pixelDataSize, int paddingBytes, int width, int height)
 {
+    long double scale = 5.0;
+    struct Point center = {-1.55, 0.0};
+    short iterationsMax = 1000;
     int currentByteNum = 0;
     int totalBytesIterated = 0;
-    unsigned char *ColourBGR = malloc(sizeof(unsigned char) * 3);
+    struct Colour pixelColour;
+    int x;
+    int y;
+
     for (int h = 0; h < height; h++)
     {
         currentByteNum = 0;
         // set pixel colours
         while (currentByteNum < (width * 3))
         {
-            calculatePoint(h, currentByteNum, width, height, ColourBGR);
+            x = currentByteNum / 3;
+            y = h;
+            pixelColour = calculatePoint(x, y, width, height, iterationsMax, scale, pixelColour, center);
 
-            bitmap[startingIndex + totalBytesIterated] = ColourBGR[0];
-            bitmap[startingIndex + totalBytesIterated + 1] = ColourBGR[1];
-            bitmap[startingIndex + totalBytesIterated + 2] = ColourBGR[2];
+            bitmap[startingIndex + totalBytesIterated] = pixelColour.blue;
+            bitmap[startingIndex + totalBytesIterated + 1] = pixelColour.green;
+            bitmap[startingIndex + totalBytesIterated + 2] = pixelColour.red;
             totalBytesIterated+= 3;
             currentByteNum+= 3;
         }
@@ -49,53 +68,44 @@ void createPixelData(int startingIndex, unsigned char *bitmap, int pixelDataSize
     }
 }
 
-void calculatePoint(int h, int currentByteNum, int width, int height, unsigned char *colourBGR)
+struct Colour calculatePoint(int x, int y, int width, int height, short iterationsMax, long double scale, struct Colour pixelColour, struct Point center)
 {
     // x,y position of pixel
-    int x = currentByteNum / 3;
-    int y = h;
-    int iterations = 100;
-    int zoom = 1;
-    int cenX = 0;
-    int cenY = 0;
-    int inSet = 1;
-    // calculate whether pixel is in the mandelbrot set
-    int i = 0; // keep track of how many iterations have passed
+    int iteration = 0;
 
-    // initial values for real and imaginary components
-    long double point[2];
-    point[0] = (x - width/2) * (4/width) * (16/(9 * zoom)) + cenX;
-    point[1] = (y - height/2) * (4/height) * (1/zoom) + cenY;
+    // complex plane goes from x = -2.5 to x = 1, y = -1 to y = 1
+    // find scaled position of each pixel
+    long double xPos = ((((1.0 / width) * x * 3.5) - 2.5) / scale) + center.x; // convert 0 -> width into -2.5 -> 1
+    long double yPos = ((((1.0 / height) * y * 2) - 1) / scale) + center.y; // convert 0 -> height into -1 -> 1
+    //printf("Scaled positions: x: %Lf , y: %Lf\n", xPos, yPos);
+    struct Point c = {0.0,0.0};
+    long double xTemp;
 
-    long double currentVal[2];
-    currentVal[0] = 0; currentVal[1] = 0;
-
-    while ( i < iterations && inSet == 0)
+    while ((c.x * c.x) + (c.y * c.y) <= 4 && iteration < iterationsMax)
     {
-        currentVal[0] = (currentVal[0] * currentVal[0]) - (currentVal[1] * currentVal[1]) + point[0];
-        currentVal[1] = (2 * currentVal[0] * currentVal[0]) + point[1];
-        i++;
-        if (sqrt((currentVal[0] * currentVal[0]) + (currentVal[1] * currentVal[1])) > 4)
-        {
-            inSet = 0;
-            break;
-        }
+        xTemp = c.x * c.x - c.y * c.y + xPos;
+        c.y = (2 * c.x * c.y) + yPos;
+        c.x = xTemp;
+        //printf("iteration: %d , x: %Lf , y: %Lf\n", iteration, c.x, c.y);
+        iteration += 1;
     }
 
-    if (inSet == 1)
+    if (iteration == iterationsMax)
     {
-        colourBGR[0] = 0;
-        colourBGR[1] = 0;
-        colourBGR[2] = 0;
+        pixelColour.blue = 0;
+        pixelColour.green = 0;
+        pixelColour.red = 0;
     }
     else
     {
-        colourBGR[0] = 255;
-        colourBGR[1] = 255;
-        colourBGR[2] = 255;
+        pixelColour.blue = 203;
+        pixelColour.green = iteration % 128;
+        //pixelColour.red = 0;
+        //pixelColour.green = 255;
+        pixelColour.red = 255;
     }
-
-    printf("Point x: %d , y: %d inSet: %d\n", x,y,inSet);
+    //printf("x : %d , y: %d , iterations: %d\n", x, y, iteration);
+    return pixelColour;
 }
 
 // creates a bitmap file from a table of pixel data
@@ -168,7 +178,7 @@ int pixelsToBitmap(int width, int height)
     bitmap[32] = 0;
     bitmap[33] = 0;
 
-    // size of pixel data (use byte splitting later)
+    // size of pixel data
     splitBytes(bitmap, 34, ((width + paddingBytes) * 3) * height);
 
     // horizontal resolution (pixels per metre)
@@ -194,32 +204,6 @@ int pixelsToBitmap(int width, int height)
     bitmap[51] = 0;
     bitmap[52] = 0;
     bitmap[53] = 0;
-
-    // pixel data - 3 bytes (BGR)
-    /*
-    // bottom left pixel
-    bitmap[54] = 0;
-    bitmap[55] = 0;
-    bitmap[56] = 255;
-    // bottom right pixel
-    bitmap[57] = 255;
-    bitmap[58] = 255;
-    bitmap[59] = 255;
-    // padding - 2 bytes
-    bitmap[60] = 0;
-    bitmap[61] = 0;
-    // top left pixel
-    bitmap[62] = 255;
-    bitmap[63] = 0;
-    bitmap[64] = 0;
-    // top right pixel
-    bitmap[65] = 0;
-    bitmap[66] = 255;
-    bitmap[67] = 0;
-    // padding - 2 bytes
-    bitmap[68] = 0;
-    bitmap[69] = 0;
-    */
 
    createPixelData(bitmap[10], bitmap, ((width * 3) + paddingBytes) * height, paddingBytes, width, height);
 
