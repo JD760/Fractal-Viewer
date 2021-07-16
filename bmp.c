@@ -27,14 +27,14 @@ int main()
 
 
     // leave this last
-    printf("Program execution time: %ld\n", time(NULL) - seconds);
+    printf("Program execution time: %ld seconds\n", time(NULL) - seconds);
     return 0;
 }
 
 void createPixelData(int startingIndex, unsigned char *bitmap, int pixelDataSize, int paddingBytes, int width, int height)
 {
-    long double scale = 5.0;
-    struct Point center = {-1.55, 0.0};
+    long double scale = 1.0;
+    struct Point center = {0.0, 0.0};
     short iterationsMax = 1000;
     int currentByteNum = 0;
     int totalBytesIterated = 0;
@@ -86,6 +86,7 @@ struct Colour calculatePoint(int x, int y, int width, int height, short iteratio
         xTemp = c.x * c.x - c.y * c.y + xPos;
         c.y = (2 * c.x * c.y) + yPos;
         c.x = xTemp;
+
         //printf("iteration: %d , x: %Lf , y: %Lf\n", iteration, c.x, c.y);
         iteration += 1;
     }
@@ -98,11 +99,9 @@ struct Colour calculatePoint(int x, int y, int width, int height, short iteratio
     }
     else
     {
-        pixelColour.blue = 203;
-        pixelColour.green = iteration % 128;
-        //pixelColour.red = 0;
-        //pixelColour.green = 255;
-        pixelColour.red = 255;
+        pixelColour.blue = iteration % 255;
+        pixelColour.green = iteration % 255;
+        pixelColour.red = iteration % 255;
     }
     //printf("x : %d , y: %d , iterations: %d\n", x, y, iteration);
     return pixelColour;

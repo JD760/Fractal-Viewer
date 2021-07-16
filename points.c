@@ -2,48 +2,63 @@
 #include <stdio.h>
 #include <math.h>
 
-int *calculatePoint(int h, int currentByteNum, int width, int height);
+struct Colour{
+    unsigned char red;
+    unsigned char blue;
+    unsigned char green;
+};
+
+struct Point{
+    long double x;
+    long double y;
+};
+
+struct Colour calculatePoint(int h, int currentByteNum);
 
 int main()
 {
-    int *result;
-    result = calculatePoint(1, 6, 640, 400);
+    calculatePoint(640, 400);
+    return 0;
 }
 
-int *calculatePoint(int h, int currentByteNum, int width, int height)
+struct Colour calculatePoint(int width, int height)
 {
     // x,y position of pixel
-    int x = currentByteNum / 3;
-    int y = h;
-    int iterations = 1000;
-    int zoom = 1;
-    int moveX = 0;
-    int moveY = 0;
-    // return the value of i (returnVal[0]) and whether the point is in the mandelbrot set (returnVal[1])
-    int *returnVal = malloc(sizeof(int) * 2); 
-    // get starting real and imaginary component
-    long double real = 1.5 * (x - width / 2) / (0.5 * zoom * width) + moveX;
-    long double imaginary = (y - height / 2) / (0.5 * zoom * height) + moveY;
+    int x = 319;
+    int y = 23;
+    int maxIterations = 1000;
+    int iteration = 0;
+    struct Colour pixelColour;
 
-    long double previousReal = 0;
-    long double previousImaginary = 0;
-    long double currentReal = 0;
-    long double currentImaginary = 0;
-    int i; // iteration counter
-    for(i = 1; i <= iterations; i++)
+    // complex plane goes from x = -2.5 to x = 1, y = -1 to y = 1
+    // find scaled position of each pixel
+    long double xPos = ((1.0 / width) * x * 3.5) - 2.5; // convert 0 -> width into -2.5 -> 1
+    long double yPos = ((1.0 / height) * y * 2) - 1; // convert 0 -> height into -1 -> 1
+    //printf("Scaled positions: x: %Lf , y: %Lf\n", xPos, yPos);
+    struct Point c = {0.0,0.0};
+    long double xTemp;
+
+    while ((c.x * c.x) + (c.y * c.y) <= 4 && iteration < maxIterations)
     {
-        previousReal = currentReal;
-        previousImaginary = currentImaginary;
-
-        currentReal = previousReal * previousReal - previousImaginary * previousImaginary + real;
-        currentImaginary = 2 * previousReal * previousImaginary + imaginary;
-
-        printf("iteration %d , real value: %Lf , imaginary value: %Lf\n", i, currentReal, currentImaginary);
-        if ((currentReal * currentReal + currentImaginary * currentImaginary) > 4) break;
+        xTemp = c.x * c.x - c.y * c.y + xPos;
+        c.y = (2 * c.x * c.y) + yPos;
+        c.x = xTemp;
+        //printf("iteration: %d , x: %Lf , y: %Lf\n", iteration, c.x, c.y);
+        iteration += 1;
     }
-    returnVal[0] = i;
-    if (i == iterations-1) returnVal[1] = 1;
-    else returnVal[1] = 0;
 
-    return returnVal;
+    if (iteration == maxIterations)
+    {
+        pixelColour.blue = 0;
+        pixelColour.green = 0;
+        pixelColour.red = 0;
+    }
+    else
+    {
+        pixelColour.blue = 255;
+        pixelColour.green = 255;
+        pixelColour.red = 255;
+    }
+    //printf("x : %d , y: %d , iterations: %d\n", x, y, iteration);
+    return pixelColour;
 }

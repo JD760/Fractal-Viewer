@@ -1,5 +1,4 @@
 // includes
-#include <stdlib.h>
 
 // function prototypes
 
@@ -95,9 +94,14 @@ unsigned char *createBitmapData(int width, int height)
 }
 
 // to be called when pixel data has been generated, creates a .bmp file from byte array
-void BitmapDataToImage(unsigned char *input)
+void BitmapDataToImage(unsigned char *input, int fileSize)
 {
-
+    FILE *fp;
+    fp = fopen("output.bmp", "w+");
+    for (int i = 0; i < fileSize; i++)
+    {
+        fputc(input[i], fp);
+    }
 }
 
 // splits a 32 bit integer into 4 bytes, arranged based on processor endianness
