@@ -1,10 +1,12 @@
-/* main.c - Fractal viewer, a program to explore the world of fractal geometry */
+/* bitmap.c - Fractal viewer, a program to explore the world of fractal geometry */
 
 /* system includes */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 /* project includes */
+#include "bitmap.h"
 /* externs */
 /* defines */
 /* typedefs */
@@ -42,7 +44,7 @@ unsigned char *createBitmap(
 
     bitmap = malloc(sizeof(unsigned char) * fileSize);
     // ensure memory has actually been allocated
-    if (bitmap != 0) printf("Failed to allocate memory\n"); return;
+    if (bitmap == 0) printf("Failed to allocate memory\n"); return NULL;
 
     // FILE HEADER //
     bitmap[0] = 'B';
