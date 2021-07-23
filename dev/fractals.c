@@ -18,11 +18,12 @@
  * outputs: pointer to the array of iteration counts of size
  * (width * height)
 */
-unsigned short *iterateMandelbrot(
+void iterateMandelbrot(
     int width,
     int height,
     int scale,
     unsigned short maxIterations,
+    unsigned short *iterationData,
     Point center // center of the image created
 )
 {
@@ -32,7 +33,7 @@ unsigned short *iterateMandelbrot(
     // location in the Y plane (-i to +i)
     long double y = 0.0;
     // holds the new real value while y is calculated
-    long double tempReal;
+    long double tempReal = 0.0;
     // iteration count tracker
     unsigned short iterations;
     // complex number z where x is real and y is imaginary
@@ -42,13 +43,6 @@ unsigned short *iterateMandelbrot(
 
 
     /* code */
-
-    /* Create an array to store iteration count for each pixel 
-     * unsigned short used to save memory, could add an option to use
-     * an int later. This has the issue of limiting iterations to 65k
-     * however saves a large amount on memory*/
-    // the last array element is the maximum iteration count
-    unsigned short *iterationData = malloc(sizeof(unsigned short) * width * height);
 
    for (int i = 0; i < height; i++)
    {
@@ -62,35 +56,71 @@ unsigned short *iterateMandelbrot(
             * the ranges of (-2.5 -> 1) and (-i -> +i) respectively
             * and the precise position is calculated with these scaled
             * values */
-           x =((((1.0 / width) * j * 3.5) - 2.5) / (scale * 1.0)) + center.x;
-           y =((((1.0 / height) * i * 2) - 1.0 ) / (scale * 1.0)) + center.y;
+           x =((((1.0 / (width - 1)) * (j * 3.5)) - 2.5) / scale) + center.x;
+           y =((((1.0 / (height - 1)) * (i * 2.0)) - 1.0 ) / scale) + center.y;
+           //printf("scaled positions: x: %Lf , y: %Lf\n", x, y);
            iterations = 0;
-           while (iterations < maxIterations && x*x + y*y <= 4.0)
+           while (iterations < maxIterations && (z.x * z.x) + (z.y * z.y) <= 4.0)
            {
+               printf("x: %d , y: %d , z.x: %Lf , z.y: %Lf\n", j, i, z.x, z.y);
                tempReal = z.x * z.x - z.y * z.y;
-               z.y = 2 * z.x * z.y;
+               z.y = 2 * z.x * z.y + y;
                z.x = tempReal;
                iterations += 1;
            }
            iterationData[totalPixelsIterated] = iterations;
+           //printf("x: %d , y: %d , iterations: %hu\n", j, i, iterations);
            totalPixelsIterated++;
        }
+       //printf("y: %d\n", i);
    }
-
-   // pointer to the array of iteration counts
-   return iterationData;
 }
 
 void modulusColouring(
     unsigned char *bitmapData,
     unsigned short *iterationData,
     int width,
-    int height
+    int height,
+    int paddingBytes,
+    unsigned short maxIterations
 )
 {
-    for (int i = 0; i < (width * height); i++)
+    /* variable declaration */
+    int currentPixelNum;
+    int totalBytesIterated;
+
+    /* program */
+
+    // calculate padding bytes required for image structure
+    paddingBytes = 4 - ((width * 3) % 4);
+    if (paddingBytes == 4) paddingBytes = 0;
+
+    // structure the pixel data
+    for (int y = 0; y < height; y++)
     {
-        
+        while (currentPixelNum < width)
+        {
+            if (iterationData[totalBytesIterated / 3] == maxIterations)
+            {
+                bitmapData[54 + totalBytesIterated] = 255;
+                bitmapData[54 + totalBytesIterated + 1] = 255;
+                bitmapData[54 + totalBytesIterated + 2] = 255;
+            } else {
+                //int result = 255 - iterationData[totalBytesIterated / 3] % 255;
+                int result = iterationData[totalBytesIterated / 3] % 255;
+                bitmapData[54 + totalBytesIterated] = result; // blue
+                bitmapData[54 + totalBytesIterated + 1] = result; // green
+                bitmapData[54 + totalBytesIterated + 2] = result; // red
+            }
+
+            totalBytesIterated += 3;
+            currentPixelNum++;
+        }
+        for (int i = 0; i < paddingBytes; i++)
+        {
+            bitmapData[54 + totalBytesIterated] = 0;
+            totalBytesIterated++;
+        }
     }
-    return;
+    free(iterationData);
 }

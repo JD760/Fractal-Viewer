@@ -8,7 +8,22 @@
         long double y;
     }Point;
 
-    unsigned short *iterateMandelbrot(int width, int height, int scale, unsigned short maxIterations, Point center);
+    void iterateMandelbrot(
+        int width,
+        int height,
+        int scale,
+        unsigned short maxIterations,
+        unsigned short *iterationData,
+        Point center
+    );
+    void modulusColouring(
+        unsigned char *bitmapData,
+        unsigned short *iterationData,
+        int width,
+        int height,
+        int paddingBytes,
+        unsigned short maxIterations
+    );
 
 
 #endif

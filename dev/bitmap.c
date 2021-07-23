@@ -18,112 +18,96 @@
 * Create an array of bytes and add file and bitmap headers to create an
 * image, with space for pixel data reserved but not used or zeroed-out
 *
-* returns: a pointer to the byte array that contains all of the image data
+* returns: a pointer to the byte array that contains all
+* of the image data
 */
-unsigned char *createBitmap(
+void createBitmap(
     int width,  // image width in pixels
-    int height // image height in pixels
+    int height, // image height in pixels
+    // number of bytes to make each image row a multiple of 4 bytes long
+    int paddingBytes,
+    int fileSize, // size of the bitmap in bytes
+    unsigned char *bitmapData // array representing all image data
 )
 {
     /* variable declarations */
-    int fileSize; // the size of the image to be created in bytes
-    unsigned char *bitmap; // byte array containing all image data
-    int numPaddingBytes; // number of bytes to pad each row of pixels
-
 
     /* code */
 
-    numPaddingBytes = 4 - ((width * 3) % 4);
-    // above formula fails to work when 0 padding bytes required
-    // this allows the padding bytes to always be correctly calculated
-    if (numPaddingBytes == 4) numPaddingBytes = 0;
-
-    // (width * 3) is used as each pixel is 3 bytes. 54 is the size of
-    // the file and bitmap headers
-    fileSize = (((width * 3) + numPaddingBytes) * height) + 54; 
-
-    bitmap = malloc(sizeof(unsigned char) * fileSize);
-    // ensure memory has actually been allocated
-    if (bitmap == 0) printf("Failed to allocate memory\n"); return NULL;
-
     // FILE HEADER //
-    bitmap[0] = 'B';
-    bitmap[1] = 'M';
+    bitmapData[0] = 'B';
+    bitmapData[1] = 'M';
 
     // file size (int -> 4 bytes)
-    splitBytes(bitmap, 2, fileSize);
+    splitBytes(bitmapData, 2, fileSize);
 
     // reserved area
-    bitmap[6] = 0;
-    bitmap[7] = 0;
-    bitmap[8] = 0;
-    bitmap[9] = 0;
+    bitmapData[6] = 0;
+    bitmapData[7] = 0;
+    bitmapData[8] = 0;
+    bitmapData[9] = 0;
 
     // pixel data offset (always 54 with selected headers)
-    bitmap[10] = 54;
-    bitmap[11] = 0;
-    bitmap[12] = 0;
-    bitmap[13] = 0;
+    bitmapData[10] = 54;
+    bitmapData[11] = 0;
+    bitmapData[12] = 0;
+    bitmapData[13] = 0;
 
     // - BITMAP HEADER - //
     
     // header size
-    bitmap[14] = 40;
-    bitmap[15] = 0;
-    bitmap[16] = 0;
-    bitmap[17] = 0;
+    bitmapData[14] = 40;
+    bitmapData[15] = 0;
+    bitmapData[16] = 0;
+    bitmapData[17] = 0;
 
     // width (int -> 4 bytes)
-    splitBytes(bitmap, 18, width);
+    splitBytes(bitmapData, 18, width);
 
     // height (use byte splitting later)
-    splitBytes(bitmap, 22, height);
+    splitBytes(bitmapData, 22, height);
 
     // reserved
-    bitmap[26] = 1;
-    bitmap[27] = 0;
+    bitmapData[26] = 1;
+    bitmapData[27] = 0;
 
     // bits per pixel (RGB = 24)
-    bitmap[28] = 24;
-    bitmap[29] = 0;
+    bitmapData[28] = 24;
+    bitmapData[29] = 0;
 
     // compression method
-    bitmap[30] = 0;
-    bitmap[31] = 0;
-    bitmap[32] = 0;
-    bitmap[33] = 0;
+    bitmapData[30] = 0;
+    bitmapData[31] = 0;
+    bitmapData[32] = 0;
+    bitmapData[33] = 0;
 
     // size of pixel data
-    splitBytes(bitmap, 34, ((width + numPaddingBytes) * 3) * height);
+    splitBytes(bitmapData, 34, ((width * 3) + paddingBytes) * height);
 
     // horizontal resolution (pixels per metre)
-    bitmap[38] = 10;
-    bitmap[39] = 0;
-    bitmap[40] = 0;
-    bitmap[41] = 0;
+    bitmapData[38] = 10;
+    bitmapData[39] = 0;
+    bitmapData[40] = 0;
+    bitmapData[41] = 0;
 
     // vertical resolution (pixels per metre)
-    bitmap[42] = 10;
-    bitmap[43] = 0;
-    bitmap[44] = 0;
-    bitmap[45] = 0;
+    bitmapData[42] = 10;
+    bitmapData[43] = 0;
+    bitmapData[44] = 0;
+    bitmapData[45] = 0;
 
     // colour pallette - RGB doesn't need one
-    bitmap[46] = 0;
-    bitmap[47] = 0;
-    bitmap[48] = 0;
-    bitmap[49] = 0;
+    bitmapData[46] = 0;
+    bitmapData[47] = 0;
+    bitmapData[48] = 0;
+    bitmapData[49] = 0;
     
     // number of important colours
-    bitmap[50] = 0;
-    bitmap[51] = 0;
-    bitmap[52] = 0;
-    bitmap[53] = 0;
-
-    /* returns a pointer to the array of bytes - this is used later to
-    * add pixel data in the colouring functions 
-    */
-    return bitmap;
+    bitmapData[50] = 0;
+    bitmapData[51] = 0;
+    bitmapData[52] = 0;
+    bitmapData[53] = 0;
+    return;
 }
 
 
@@ -198,20 +182,24 @@ void splitBytes(
 * file name has a maximum length of 64 characters
 */
 void writeBitmap(
-    unsigned char *data,
+    unsigned char *bitmapData,
+    int width,
+    int height,
     int fileSize,
     char fileName[68]
 )
 {
     // variable declaration
+
     FILE *fp;
     // code
-    strcat(fileName, ".bmp");
-    fp = fopen(fileName, "w+");
+
+    fp = fopen("bitmap.bmp", "w+");
 
     // write each byte in the bitmap data to the output file
     for (int i = 0; i < fileSize; i++)
     {
-        fputc(data[i], fp);
+        fputc(bitmapData[i], fp);
     }
+    free(bitmapData);
 }
