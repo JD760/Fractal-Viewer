@@ -2,6 +2,7 @@
 
 /* system includes */
 #include <stdlib.h>
+#include <stdio.h>
 /* project includes */
 #include "fractals.h"
 /* externs */
@@ -27,17 +28,15 @@ unsigned short *iterateMandelbrot(
 {
     /* variable declarations */
     // location in the x plane (-2.5 to +1)
-    long double x;
+    long double x = 0.0;
     // location in the Y plane (-i to +i)
-    long double y;
+    long double y = 0.0;
     // holds the new real value while y is calculated
     long double tempReal;
     // iteration count tracker
     unsigned short iterations;
     // complex number z where x is real and y is imaginary
-    Point z;
-    // current byte 
-    int currentByteNum;
+    Point z = {0.0 , 0.0};
     // total pixels - incremented by the below loop
     int totalPixelsIterated = 0;
 
@@ -49,11 +48,11 @@ unsigned short *iterateMandelbrot(
      * an int later. This has the issue of limiting iterations to 65k
      * however saves a large amount on memory*/
     // the last array element is the maximum iteration count
-    unsigned short *iterationData = malloc((sizeof(unsigned short) * width * height) + 1);
+    unsigned short *iterationData = malloc(sizeof(unsigned short) * width * height);
 
-   for (int i = 0; i < width; i++)
+   for (int i = 0; i < height; i++)
    {
-       for (int j = 0; j < height; j++)
+       for (int j = 0; j < width; j++)
        {
            // (i, j) represents the x,y coord on the bitmap width*height
            // not the complex plane (3.5*2)
@@ -63,8 +62,8 @@ unsigned short *iterateMandelbrot(
             * the ranges of (-2.5 -> 1) and (-i -> +i) respectively
             * and the precise position is calculated with these scaled
             * values */
-           x =((((1.0 / width) * i * 3.5) - 2.5) / scale) + center.x;
-           y =((((1.0 / height) * j * 2) - 1.0 ) / scale) + center.y;
+           x =((((1.0 / width) * j * 3.5) - 2.5) / (scale * 1.0)) + center.x;
+           y =((((1.0 / height) * i * 2) - 1.0 ) / (scale * 1.0)) + center.y;
            iterations = 0;
            while (iterations < maxIterations && x*x + y*y <= 4.0)
            {
@@ -77,9 +76,21 @@ unsigned short *iterateMandelbrot(
            totalPixelsIterated++;
        }
    }
-   // this value is needed for colouring later
-   iterationData[totalPixelsIterated+1] = maxIterations;
 
    // pointer to the array of iteration counts
    return iterationData;
+}
+
+void modulusColouring(
+    unsigned char *bitmapData,
+    unsigned short *iterationData,
+    int width,
+    int height
+)
+{
+    for (int i = 0; i < (width * height); i++)
+    {
+        
+    }
+    return;
 }

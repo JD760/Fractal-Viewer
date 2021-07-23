@@ -3,6 +3,7 @@
 /* system includes */
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 /* project includes */
 #include "bitmap.h"
@@ -18,26 +19,31 @@
 int main(int argc, char *argv[])
 {
     /* variable declarations */
+    unsigned char *bitmapData;
+    unsigned short *iterationData;
+    unsigned char mode;
 
     /* represents the type of fractal to be drawn 
     * 1 - mandelbrot
     * 2 - julia
     */
-    unsigned char mode;
+
 
     /* process commandline options */
     if (argv[1] == "mandelbrot") mode = 1;
-    if (argv[1] == "julia") mode = 2;
+    else if (argv[1] == "julia") mode = 2;
     else mode = 1; // default to mandelbrot mode
 
     /* do the rest */
-    unsigned char *bitmapData;
-    unsigned short *iterationData;
-    Point center = {0.0, 0.0};
-    bitmapData = createBitmap(3840, 2160);
-    iterationData = iterateMandelbrot(3840, 2160, 1, 1000, center);
-    printf("Max iterations: %hu", iterationData[3840 * 2160 + 1]);
 
+    time_t start = time(NULL);
+    Point center = {0.0, 0.0};
+    bitmapData = createBitmap(1920, 1080);
+    printf("Created bitmap data\n");
+    iterationData = iterateMandelbrot(1920, 1080, 1, 250, center);
+    printf("created iteration data\n");
+    time_t end = time(NULL);
+    printf("Execution time: %f\n", difftime(end, start));
 }
 
 /* functions */

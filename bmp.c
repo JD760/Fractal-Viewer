@@ -23,7 +23,7 @@ int main()
 {
     time_t seconds;
     seconds = time(NULL);
-    pixelsToBitmap(3840, 2160); // 640 x 400 for mandelbrot
+    pixelsToBitmap(1920, 1080); // 640 x 400 for mandelbrot
 
 
     // leave this last
@@ -99,9 +99,9 @@ struct Colour calculatePoint(int x, int y, int width, int height, short iteratio
     }
     else
     {
-        pixelColour.blue = iteration % 255;
-        pixelColour.green = iteration % 255;
-        pixelColour.red = iteration % 255;
+        pixelColour.blue = (iterationsMax - iteration) % 255;
+        pixelColour.green = (iterationsMax - iteration) % 255;
+        pixelColour.red = (iterationsMax - iteration) % 255;
     }
     //printf("x : %d , y: %d , iterations: %d\n", x, y, iteration);
     return pixelColour;
