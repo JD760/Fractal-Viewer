@@ -19,8 +19,7 @@
         unsigned char *data,
         int width,
         int height,
-        int fileSize,
-        char fileName[68]
+        int fileSize
     );
 
 #endif

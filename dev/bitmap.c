@@ -185,8 +185,7 @@ void writeBitmap(
     unsigned char *bitmapData,
     int width,
     int height,
-    int fileSize,
-    char fileName[68]
+    int fileSize
 )
 {
     // variable declaration

@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     printf("created iteration data\n");
     modulusColouring(bitmapData, iterationData, width, height, paddingBytes, maxIterations);
     printf("Created colouring data\n");
-    writeBitmap(bitmapData, width, height, fileSize, "bitmap");
+    writeBitmap(bitmapData, width, height, fileSize);
     printf("Written bytes into bitmap image data\n");
     time_t end = time(NULL);
     printf("Execution time: %f\n", difftime(end, start));

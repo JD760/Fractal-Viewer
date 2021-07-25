@@ -37,7 +37,7 @@ void iterateMandelbrot(
     // iteration count tracker
     unsigned short iterations;
     // complex number z where x is real and y is imaginary
-    Point z = {0.0 , 0.0};
+    Point z;
     // total pixels - incremented by the below loop
     int totalPixelsIterated = 0;
 
@@ -56,14 +56,16 @@ void iterateMandelbrot(
             * the ranges of (-2.5 -> 1) and (-i -> +i) respectively
             * and the precise position is calculated with these scaled
             * values */
+           z.x = 0.0;
+           z.y = 0.0;
            x =((((1.0 / (width - 1)) * (j * 3.5)) - 2.5) / scale) + center.x;
            y =((((1.0 / (height - 1)) * (i * 2.0)) - 1.0 ) / scale) + center.y;
-           //printf("scaled positions: x: %Lf , y: %Lf\n", x, y);
+           //printf("scaled positions: x: %Lf , y: %Lf , pixel: %d  / %d\n", x, y, j, i);
            iterations = 0;
            while (iterations < maxIterations && (z.x * z.x) + (z.y * z.y) <= 4.0)
            {
-               printf("x: %d , y: %d , z.x: %Lf , z.y: %Lf\n", j, i, z.x, z.y);
-               tempReal = z.x * z.x - z.y * z.y;
+               //printf("x: %d , y: %d , z.x: %Lf , z.y: %Lf , iteration: %hu\n", j, i, z.x, z.y, iterations);
+               tempReal = (z.x * z.x - z.y * z.y) + x;
                z.y = 2 * z.x * z.y + y;
                z.x = tempReal;
                iterations += 1;
@@ -98,16 +100,17 @@ void modulusColouring(
     // structure the pixel data
     for (int y = 0; y < height; y++)
     {
+        currentPixelNum = 0;
         while (currentPixelNum < width)
         {
             if (iterationData[totalBytesIterated / 3] == maxIterations)
             {
-                bitmapData[54 + totalBytesIterated] = 255;
-                bitmapData[54 + totalBytesIterated + 1] = 255;
-                bitmapData[54 + totalBytesIterated + 2] = 255;
+                bitmapData[54 + totalBytesIterated] = 0;
+                bitmapData[54 + totalBytesIterated + 1] = 0;
+                bitmapData[54 + totalBytesIterated + 2] = 0;
             } else {
-                //int result = 255 - iterationData[totalBytesIterated / 3] % 255;
-                int result = iterationData[totalBytesIterated / 3] % 255;
+                int result = 255 - iterationData[totalBytesIterated / 3] % 255;
+                //int result = iterationData[totalBytesIterated / 3] % 255;
                 bitmapData[54 + totalBytesIterated] = result; // blue
                 bitmapData[54 + totalBytesIterated + 1] = result; // green
                 bitmapData[54 + totalBytesIterated + 2] = result; // red
