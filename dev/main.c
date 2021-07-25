@@ -19,11 +19,12 @@
 int main(int argc, char *argv[])
 {
     /* user-defined variables */
-    int width = 1920;
-    int height = 1080;
+    int width = 3840;
+    int height = 2160;
     Point center = {0.0, 0.0};
+    Point seed = {-0.52, 0.57};
     unsigned short maxIterations = 1000;
-    long double scale = 1.0;
+    long double scale = 0.0;
 
     /* calculated variables */
     int paddingBytes = 4 - ((width * 3) % 4);
@@ -39,12 +40,14 @@ int main(int argc, char *argv[])
 
     createBitmap(width, height, paddingBytes, fileSize, bitmapData);
     printf("Created bitmap data\n");
-    iterateMandelbrot(width, height, scale, maxIterations, iterationData, center);
+    //iterateMandelbrot(width, height, scale, maxIterations, iterationData, center);
+    iterateJulia(width, height, seed, maxIterations, scale, center, iterationData);
     printf("created iteration data\n");
     modulusColouring(bitmapData, iterationData, width, height, paddingBytes, maxIterations);
     printf("Created colouring data\n");
     writeBitmap(bitmapData, width, height, fileSize);
     printf("Written bytes into bitmap image data\n");
+
     time_t end = time(NULL);
     printf("Execution time: %f\n", difftime(end, start));
 }

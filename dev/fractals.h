@@ -24,6 +24,15 @@
         int paddingBytes,
         unsigned short maxIterations
     );
+    void iterateJulia(
+        int width,
+        int height,
+        Point seed,
+        unsigned short maxIterations,
+        long double scale,
+        Point center,
+        unsigned short *iterationData
+    );
 
 
 #endif

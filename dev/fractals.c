@@ -77,6 +77,45 @@ void iterateMandelbrot(
        //printf("y: %d\n", i);
    }
 }
+/*
+ * Generate iteration daa=ta array for a Julia set
+*/
+void iterateJulia(
+    int width,
+    int height,
+    Point seed,
+    unsigned short maxIterations,
+    long double scale,
+    Point center,
+    unsigned short *iterationData
+)
+{
+    long double x = 0.0;
+    long double y = 0.0;
+    long double tempReal;
+    Point z;
+    int totalPixelsIterated = 0;
+    int iterations;
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            z.x =((((1.0 / (width - 1)) * (j * 3.5)) - 2.5) / scale) + center.x;
+            z.y =((((1.0 / (height - 1)) * (i * 2.0)) - 1.0 ) / scale) + center.y;
+            iterations = 0;
+            while (iterations < maxIterations && (z.x * z.x) + (z.y * z.y) <= 4)
+            {
+                tempReal = ((z.x * z.x) - (z.y * z.y)) + seed.x;
+                z.y = (2 * z.x * z.y) + seed.y;
+                z.x = tempReal;
+                iterations++;
+            }
+            iterationData[totalPixelsIterated] = iterations;
+            totalPixelsIterated++;
+        }
+    }
+}
 
 void modulusColouring(
     unsigned char *bitmapData,
