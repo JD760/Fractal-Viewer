@@ -99,7 +99,7 @@ void pow3Mandelbrot(
     long double tempReal = 0.0;
     // iteration count tracker
     unsigned short iterations;
-    int totalPixelsIterated;
+    int totalPixelsIterated = 0;
     // complex number holding the result of the iteration
     Point z;
     /* code */
@@ -112,12 +112,13 @@ void pow3Mandelbrot(
             z.y = 0.0;
             x =((((1.0 / (width - 1)) * (j * 3.5)) - 2.5) / scale) + center.x;
             y =((((1.0 / (height - 1)) * (i * 2.0)) - 1.0 ) / scale) + center.y;
-
             iterations = 0;
             while (iterations < maxIterations && (z.x * z.x) + (z.y * z.y) <= 4.0)
             {
+                //printf("x: %d , y: %d , z.x: %Lf , z.y: %Lf , iteration: %hu\n", j, i, z.x, z.y, iterations);
                 tempReal = ((z.x * z.x * z.x) - (2 * z.y * z.y * z.x) - (z.x * z.y * z.y)) + x;
                 z.y = ((3 * z.y * z.x * z.x) - (z.y * z.y * z.y)) + y;
+                z.x = tempReal;
                 iterations++;
             }
             iterationData[totalPixelsIterated] = iterations;
@@ -209,11 +210,11 @@ void modulusColouring(
                 bitmapData[54 + totalBytesIterated + 1] = 0;
                 bitmapData[54 + totalBytesIterated + 2] = 0;
             } else {
-                int result = 255 - iterationData[totalBytesIterated / 3] % 255;
+                int result = 255 - iterationData[totalBytesIterated / 3] % 128;
                 //int result = iterationData[totalBytesIterated / 3] % 255;
-                bitmapData[54 + totalBytesIterated] = result; // blue
+                bitmapData[54 + totalBytesIterated] = 0; // blue
                 bitmapData[54 + totalBytesIterated + 1] = result; // green
-                bitmapData[54 + totalBytesIterated + 2] = result; // red
+                bitmapData[54 + totalBytesIterated + 2] = 255; // red
             }
 
             totalBytesIterated += 3;

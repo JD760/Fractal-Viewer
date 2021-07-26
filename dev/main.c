@@ -21,14 +21,14 @@ int main(int argc, char *argv[])
     /* user-defined variables */
     int width = 3840;
     int height = 2160;
-    Point center = {0.0, 0.0};
+    Point center = {0.355, 0.35};
     Point seed = {-0.12, -0.77};
     unsigned short maxIterations = 1000;
-    long double scale = 1.0;
+    long double scale = 200.0;
 
     /* calculated variables */
     int paddingBytes = 4 - ((width * 3) % 4);
-    if (paddingBytes == 4) paddingBytes = 0;
+    if (paddingBytes ==4) paddingBytes = 0;
     // (width of each row in bytes * height) + header size
     int fileSize = (((width * 3) + paddingBytes) * height) + 54;
     unsigned char *bitmapData = malloc(sizeof(unsigned char) * fileSize);
@@ -40,9 +40,9 @@ int main(int argc, char *argv[])
 
     createBitmap(width, height, paddingBytes, fileSize, bitmapData);
     printf("Created bitmap data\n");
-    //iterateMandelbrot(width, height, scale, maxIterations, iterationData, center);
+    iterateMandelbrot(width, height, scale, maxIterations, iterationData, center);
     //iterateJulia(width, height, seed, maxIterations, scale, center, iterationData);
-
+    //pow3Mandelbrot(width, height, scale, maxIterations, iterationData, center);
     printf("created iteration data\n");
     modulusColouring(bitmapData, iterationData, width, height, paddingBytes, maxIterations);
     printf("Created colouring data\n");

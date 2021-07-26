@@ -24,6 +24,17 @@
         int paddingBytes,
         unsigned short maxIterations
     );
+    void pow3Mandelbrot(
+        int width,
+        int height,
+        long double scale,
+        unsigned short maxIterations,
+        unsigned short *iterationData,
+        Point center
+    );
+    void pow4Mandelbrot(
+
+    );
     void iterateJulia(
         int width,
         int height,
