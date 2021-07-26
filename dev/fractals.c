@@ -77,6 +77,67 @@ void iterateMandelbrot(
        //printf("y: %d\n", i);
    }
 }
+
+/*
+ * Create a mandelbrot set using z = z^3 + c 
+ * instead of the usual formula
+*/
+void pow3Mandelbrot(
+    int width,
+    int height,
+    long double scale,
+    unsigned short maxIterations,
+    unsigned short *iterationData,
+    Point center
+)
+{
+    /* variable declarations */
+    // coordinates on the complex plane after sizing, scaling etc
+    long double x = 0.0;
+    long double y = 0.0;
+    // placeholder value for x, while y is modified
+    long double tempReal = 0.0;
+    // iteration count tracker
+    unsigned short iterations;
+    int totalPixelsIterated;
+    // complex number holding the result of the iteration
+    Point z;
+    /* code */
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            z.x = 0.0;
+            z.y = 0.0;
+            x =((((1.0 / (width - 1)) * (j * 3.5)) - 2.5) / scale) + center.x;
+            y =((((1.0 / (height - 1)) * (i * 2.0)) - 1.0 ) / scale) + center.y;
+
+            iterations = 0;
+            while (iterations < maxIterations && (z.x * z.x) + (z.y * z.y) <= 4.0)
+            {
+                tempReal = ((z.x * z.x * z.x) - (2 * z.y * z.y * z.x) - (z.x * z.y * z.y)) + x;
+                z.y = ((3 * z.y * z.x * z.x) - (z.y * z.y * z.y)) + y;
+                iterations++;
+            }
+            iterationData[totalPixelsIterated] = iterations;
+            totalPixelsIterated++;
+        }
+    }
+}
+
+
+/*
+ * Generate a mandelbrot set using z = z^4 + c
+ * to form a differently shaped fractal
+*/
+void pow4Mandelbrot(
+
+)
+{
+
+}
+
 /*
  * Generate iteration daa=ta array for a Julia set
 */
@@ -165,4 +226,37 @@ void modulusColouring(
         }
     }
     free(iterationData);
+}
+
+
+/*
+ * Colour pixels based on the frequency at which iterations occur
+*/
+void frequencyColouring(
+    int width,
+    int height,
+    unsigned short *iterationData,
+    unsigned char *bitmapData,
+    unsigned short maxIterations
+)
+{
+    /* variable declarations */
+    int totalPixelsIterated = 0;
+    int iterationFrequencies[maxIterations];
+
+
+    /* code */
+    while (totalPixelsIterated < width * height)
+    {
+        iterationFrequencies[iterationData[totalPixelsIterated]]++;
+        totalPixelsIterated++;
+    }
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            
+        }
+    }
 }
