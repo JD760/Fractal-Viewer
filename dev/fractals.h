@@ -14,7 +14,8 @@
         int scale,
         unsigned short maxIterations,
         unsigned short *iterationData,
-        Point center
+        Point center,
+        Point *interestingPoints
     );
     void modulusColouring(
         unsigned char *bitmapData,
@@ -30,7 +31,8 @@
         long double scale,
         unsigned short maxIterations,
         unsigned short *iterationData,
-        Point center
+        Point center,
+        Point *interestingPoints
     );
     void pow4Mandelbrot(
 

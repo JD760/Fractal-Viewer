@@ -24,7 +24,8 @@ void iterateMandelbrot(
     int scale,
     unsigned short maxIterations,
     unsigned short *iterationData,
-    Point center // center of the image created
+    Point center, // center of the image created
+    Point *interestingPoints
 )
 {
     /* variable declarations */
@@ -40,6 +41,9 @@ void iterateMandelbrot(
     Point z;
     // total pixels - incremented by the below loop
     int totalPixelsIterated = 0;
+    // interesting points are on the edge of a set and may
+    // be part of a visually pleasing pattern
+    int interestingPointsLogged = 0;
 
 
     /* code */
@@ -70,6 +74,12 @@ void iterateMandelbrot(
                z.x = tempReal;
                iterations += 1;
            }
+           if (iterations <= 960 && iterations >= 940 && interestingPointsLogged < 3)
+           {
+               interestingPoints[interestingPointsLogged].x = x;
+               interestingPoints[interestingPointsLogged].y = y;
+               interestingPointsLogged++;
+           }
            iterationData[totalPixelsIterated] = iterations;
            //printf("x: %d , y: %d , iterations: %hu\n", j, i, iterations);
            totalPixelsIterated++;
@@ -88,7 +98,8 @@ void pow3Mandelbrot(
     long double scale,
     unsigned short maxIterations,
     unsigned short *iterationData,
-    Point center
+    Point center,
+    Point *interestingPoints
 )
 {
     /* variable declarations */
@@ -102,6 +113,7 @@ void pow3Mandelbrot(
     int totalPixelsIterated = 0;
     // complex number holding the result of the iteration
     Point z;
+    int interestingPointsLogged = 0;
     /* code */
 
     for (int i = 0; i < height; i++)
@@ -120,6 +132,12 @@ void pow3Mandelbrot(
                 z.y = ((3 * z.y * z.x * z.x) - (z.y * z.y * z.y)) + y;
                 z.x = tempReal;
                 iterations++;
+            }
+            if (iterations <= 960 && iterations >= 940 && interestingPointsLogged < 3)
+            {
+                interestingPoints[interestingPointsLogged].x = j;
+                interestingPoints[interestingPointsLogged].y = i;
+                interestingPointsLogged++;
             }
             iterationData[totalPixelsIterated] = iterations;
             totalPixelsIterated++;
