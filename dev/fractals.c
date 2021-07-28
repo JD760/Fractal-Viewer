@@ -154,7 +154,7 @@ void pow4Mandelbrot(
 
 )
 {
-
+    return;
 }
 
 /*
@@ -197,6 +197,52 @@ void iterateJulia(
     }
 }
 
+
+/*
+ * Generate the burning ship fractal, calculated with z = abs(z)^2 + c
+ * This fractal is a unique shape so sometimes requires a wider range
+ * of values on the complex plane to be shown in its entirety
+*/
+void iterateBurningShip(
+    int width,
+    int height,
+    unsigned short maxIterations,
+    long double scale,
+    Point center,
+    unsigned short *iterationData
+)
+{
+    /* variable declarations */
+    long double x;
+    long double y;
+    long double tempReal;
+    int totalPixelsIterated = 0;
+    Point z;
+    unsigned short iterations;
+    /* code */
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            z.x = 0.0;
+            z.y = 0.0;
+            x =((((1.0 / (width - 1)) * (j * 3.5)) - 2.5) / scale) + center.x;
+            y =((((1.0 / (height - 1)) * (i * 2.0)) - 1.0 ) / scale) + center.y;
+            iterations = 0;
+            while (iterations < maxIterations && (z.x * z.x + z.y * z.y) <= 4.0)
+            {
+                tempReal = (z.x * z.x) + x;
+                z.y = (z.y * z.y) + y;
+                z.x = tempReal;
+                iterations++;
+            }
+            iterationData[totalPixelsIterated] = iterations;
+            totalPixelsIterated++;
+        }
+    }
+}
+
 void modulusColouring(
     unsigned char *bitmapData,
     unsigned short *iterationData,
@@ -230,9 +276,9 @@ void modulusColouring(
             } else {
                 int result = 255 - iterationData[totalBytesIterated / 3] % 128;
                 //int result = iterationData[totalBytesIterated / 3] % 255;
-                bitmapData[54 + totalBytesIterated] = 0; // blue
-                bitmapData[54 + totalBytesIterated + 1] = result; // green
-                bitmapData[54 + totalBytesIterated + 2] = 255; // red
+                bitmapData[54 + totalBytesIterated] = result; // blue
+                bitmapData[54 + totalBytesIterated + 1] = 255; // green
+                bitmapData[54 + totalBytesIterated + 2] = result; // red
             }
 
             totalBytesIterated += 3;

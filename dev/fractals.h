@@ -46,6 +46,14 @@
         Point center,
         unsigned short *iterationData
     );
+    void iterateBurningShip(
+    int width,
+    int height,
+    unsigned short maxIterations,
+    long double scale,
+    Point center,
+    unsigned short *iterationData
+    );
 
 
 #endif
