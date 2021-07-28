@@ -41,9 +41,9 @@ int main(int argc, char *argv[])
 
     createBitmap(width, height, paddingBytes, fileSize, bitmapData);
     printf("Created bitmap data\n");
-    //iterateMandelbrot(width, height, scale, maxIterations, iterationData, center);
+    iterateMandelbrot(width, height, scale, maxIterations, iterationData, center, interestingPoints);
     //iterateJulia(width, height, seed, maxIterations, scale, center, iterationData);
-    pow3Mandelbrot(width, height, scale, maxIterations, iterationData, center, interestingPoints);
+    //pow3Mandelbrot(width, height, scale, maxIterations, iterationData, center, interestingPoints);
     printf("created iteration data\n");
     modulusColouring(bitmapData, iterationData, width, height, paddingBytes, maxIterations);
     printf("Created colouring data\n");

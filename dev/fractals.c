@@ -208,7 +208,7 @@ void modulusColouring(
 {
     /* variable declaration */
     int currentPixelNum;
-    int totalBytesIterated;
+    int totalBytesIterated = 0;
 
     /* program */
 
