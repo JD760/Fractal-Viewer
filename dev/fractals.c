@@ -197,6 +197,13 @@ void iterateJulia(
     }
 }
 
+/*
+ * COLOURING SETTINGS
+ * B: 255, G: 255 - result, R: 255- result -> black set, white bg, blue edges
+ * All: 255 - result -> black set, white bg, grey edges
+ * B: 255 - result, G: 255 - result, R:255 -> black set, white bg, red edges
+*/
+
 void modulusColouring(
     unsigned char *bitmapData,
     unsigned short *iterationData,
@@ -228,10 +235,10 @@ void modulusColouring(
                 bitmapData[54 + totalBytesIterated + 1] = 0;
                 bitmapData[54 + totalBytesIterated + 2] = 0;
             } else {
-                int result = 255 - iterationData[totalBytesIterated / 3] % 128;
+                int result = iterationData[totalBytesIterated / 3] % 255;
                 //int result = iterationData[totalBytesIterated / 3] % 255;
-                bitmapData[54 + totalBytesIterated] = 0; // blue
-                bitmapData[54 + totalBytesIterated + 1] = result; // green
+                bitmapData[54 + totalBytesIterated] = 255 - result; // blue
+                bitmapData[54 + totalBytesIterated + 1] = 255 - result; // green
                 bitmapData[54 + totalBytesIterated + 2] = 255; // red
             }
 
