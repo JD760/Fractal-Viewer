@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
     //iterateMandelbrot(width, height, scale, maxIterations, iterationData, center, interestingPoints);
     iterateJulia(width, height, seed, maxIterations, scale, center, iterationData);
     //pow3Mandelbrot(width, height, scale, maxIterations, iterationData, center, interestingPoints);
+    //iterateBurningShip(width, height, maxIterations, scale, center, iterationData);
     printf("created iteration data\n");
     modulusColouring(bitmapData, iterationData, width, height, paddingBytes, maxIterations);
     printf("Created colouring data\n");

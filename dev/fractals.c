@@ -154,7 +154,7 @@ void pow4Mandelbrot(
 
 )
 {
-
+    return;
 }
 
 /*
@@ -197,13 +197,59 @@ void iterateJulia(
     }
 }
 
+
+/*
+ * Generate the burning ship fractal, calculated with z = abs(z)^2 + c
+ * This fractal is a unique shape so sometimes requires a wider range
+ * of values on the complex plane to be shown in its entirety
+*/
+void iterateBurningShip(
+    int width,
+    int height,
+    unsigned short maxIterations,
+    long double scale,
+    Point center,
+    unsigned short *iterationData
+)
+{
+    /* variable declarations */
+    long double x;
+    long double y;
+    long double tempReal;
+    int totalPixelsIterated = 0;
+    Point z;
+    unsigned short iterations;
+    /* code */
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            z.x = 0.0;
+            z.y = 0.0;
+            x =((((1.0 / (width - 1)) * (j * 3.5)) - 2.5) / scale) + center.x;
+            y =((((1.0 / (height - 1)) * (i * 2.0)) - 1.0 ) / scale) + center.y;
+            iterations = 0;
+            while (iterations < maxIterations && (z.x * z.x + z.y * z.y) <= 4.0)
+            {
+                tempReal = (z.x * z.x) + x;
+                z.y = (z.y * z.y) + y;
+                z.x = tempReal;
+                iterations++;
+            }
+            iterationData[totalPixelsIterated] = iterations;
+            totalPixelsIterated++;
+        }
+    }
+}
+
+
 /*
  * COLOURING SETTINGS
  * B: 255, G: 255 - result, R: 255- result -> black set, white bg, blue edges
  * All: 255 - result -> black set, white bg, grey edges
  * B: 255 - result, G: 255 - result, R:255 -> black set, white bg, red edges
 */
-
 void modulusColouring(
     unsigned char *bitmapData,
     unsigned short *iterationData,
