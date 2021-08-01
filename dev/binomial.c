@@ -13,42 +13,35 @@
 /* typedefs */
 typedef struct Term{
     int choose;
-    int a;
-    int b;
+    int x;
+    int y;
+    int i;
 }Term;
 /* globals */
 /* function prototypes */
-void binomialCoefficients(int a, int b, int n, Term *result);
+void binomialExpansion(int a, int b, int n, Term *result);
 int factorial(int n);
 
 void main()
 {
     int n = 4;
     Term *result = malloc(sizeof(Term) * (n + 1));
-    binomialCoefficients(3, 6, n, result);
+    binomialExpansion(1, 1, n, result);
     //printf("Factorial: %d\n", factorial(4));
-    /*
-    for(int i = 0; i < n; i++)
-    {
-        printf("(%d)(x^%d)(y^%d)\n", result[i].choose, result[i].a, result[i].b);
-    }
-    return; */
+
+    return;
 }
 /*
  * find the result of (a + b)^n
  * each item in result array represents 
  * (n choose k)(x^a)(y^b) eg 1x^2b^3
 */
-void binomialCoefficients(int a, int b, int n, Term *result)
+void binomialExpansion(int a, int b, int n, Term *result)
 {
     int chooseDenominator;
 
     for(int k = 0; k <= n; k++)
     {
-        //printf("%d\n", k);
-        result[k].a = n - k;
-        result[k].b = k;
-        result[k].choose;
         // save on computations by using known values for the denominator
         if (k == 0 || k == n) result[k].choose = 1;
         else if (k == 1 || k == n - 1) result[k].choose = n;
@@ -56,7 +49,29 @@ void binomialCoefficients(int a, int b, int n, Term *result)
             chooseDenominator = factorial(k) * factorial(n - k);
             result[k].choose = factorial(n) / chooseDenominator;
         }
-        printf("(%d)(x^%d)(y^%d)\n", result[k].choose, result[k].a, result[k].b);
+
+        result[k].x = n - k;
+        result[k].y = k;
+        // i^0 = 1 so leave the total coefficient and parity unchanged
+        // also i^k = 1 when k % 4 = 0 so these cases are identical
+        if (k == 0 || k % 4 == 0) result[k].i = 0;
+        // (x + y^ki^k) == -(x + y^ki) when k % 4 == 1
+        else if (k % 4 == 1)
+        {
+            result[k].i = 1;
+            result[k].choose *= -1;
+        }
+        else if (k % 4 == 2)
+        {
+            result[k].i = 0;
+            result[k].choose *= -1;
+        }
+        else if (k % 4 == 3)
+        {
+            result[k].i = 1;
+        }
+
+        printf("(%d)(x^%d)(y^%d)(i^%d)\n", result[k].choose, result[k].x, result[k].y, result[k].i);
     }
     
 }
