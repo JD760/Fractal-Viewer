@@ -1,25 +1,44 @@
-// includes
+/* bitmap.c - Fractal viewer, a program to explore the world of fractal geometry */
 
-// function prototypes
+/* system includes */
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+/* project includes */
+#include "bitmap.h"
+/* externs */
+/* defines */
+/* typedefs */
+/* globals */
+/* function prototypes */
 
-// creates data for a bitmap image with 24-bit colours and variable width/height in the form of 
-// a byte array
-unsigned char *createBitmapData(int width, int height)
+
+/*
+* Create an array of bytes and add file and bitmap headers to create an
+* image, with space for pixel data reserved but not used or zeroed-out
+*
+* returns: a pointer to the byte array that contains all
+* of the image data
+*/
+void createBitmap(
+    int width,  // image width in pixels
+    int height, // image height in pixels
+    // number of bytes to make each image row a multiple of 4 bytes long
+    int paddingBytes,
+    int fileSize, // size of the bitmap in bytes
+    unsigned char *bitmapData // array representing all image data
+)
 {
-    // size calculations
-    int paddingBytes = 4 - ((width * 3) % 4); // works for all results of (width * 3) % 4 except 0
-    if (paddingBytes == 4) paddingBytes = 0; // fixes above flaw 
-    // size of pixel data + size of headers
-    int fileSize = (((width * 3) + paddingBytes) * height) + 54;
-    unsigned char *bitmapData = malloc(sizeof(unsigned char) * fileSize);
+    /* variable declarations */
 
-    // - FILE HEADER - //
+    /* code */
 
-    // file signature
+    // FILE HEADER //
     bitmapData[0] = 'B';
     bitmapData[1] = 'M';
 
-    // file size (use byte splitting later)
+    // file size (int -> 4 bytes)
     splitBytes(bitmapData, 2, fileSize);
 
     // reserved area
@@ -34,7 +53,6 @@ unsigned char *createBitmapData(int width, int height)
     bitmapData[12] = 0;
     bitmapData[13] = 0;
 
-    // bitmap header
     // - BITMAP HEADER - //
     
     // header size
@@ -43,7 +61,7 @@ unsigned char *createBitmapData(int width, int height)
     bitmapData[16] = 0;
     bitmapData[17] = 0;
 
-    // width
+    // width (int -> 4 bytes)
     splitBytes(bitmapData, 18, width);
 
     // height (use byte splitting later)
@@ -64,7 +82,7 @@ unsigned char *createBitmapData(int width, int height)
     bitmapData[33] = 0;
 
     // size of pixel data
-    splitBytes(bitmapData, 34, ((width + paddingBytes) * 3) * height);
+    splitBytes(bitmapData, 34, ((width * 3) + paddingBytes) * height);
 
     // horizontal resolution (pixels per metre)
     bitmapData[38] = 10;
@@ -89,25 +107,23 @@ unsigned char *createBitmapData(int width, int height)
     bitmapData[51] = 0;
     bitmapData[52] = 0;
     bitmapData[53] = 0;
-
-    return bitmapData;
+    return;
 }
 
-// to be called when pixel data has been generated, creates a .bmp file from byte array
-void BitmapDataToImage(unsigned char *input, int fileSize)
-{
-    FILE *fp;
-    fp = fopen("output.bmp", "w+");
-    for (int i = 0; i < fileSize; i++)
-    {
-        fputc(input[i], fp);
-    }
-}
 
-// splits a 32 bit integer into 4 bytes, arranged based on processor endianness
-void splitBytes(unsigned char *arr, int startAddr, int num)
+
+/*
+* Splits a 4 byte number into 4 elements of a byte array, according to
+* processor endianness which is checked within the function
+*/
+void splitBytes(
+    unsigned char *arr, // array to write bytes to 
+    int startAddr, // where to start writing bytes
+    int num // the number to encode into 4 bytes
+)
 {
-    // test endianness
+    // test the processor endianness to ensure bytes are written in
+    // the correct order 
     int endianTestInt = 1;
     int endian = 0; // 0 is little endian, 1 is big endian
 
@@ -116,12 +132,14 @@ void splitBytes(unsigned char *arr, int startAddr, int num)
         endianTestInt = 1;
     }
 
+    // if the processor is little-endian
     if (endian == 0)
     {
         if (num >= 16777216)
         {
             arr[startAddr + 3] = floor(num / 16777216);
-            // this can be done as byte has been set and avoids nested if's while being a little less concise
+            /* find the remainder after x multiples have been
+            written to the current byte */
             num = num % 16777216; 
         }
         if (num >= 65536)
@@ -136,6 +154,7 @@ void splitBytes(unsigned char *arr, int startAddr, int num)
         }
         arr[startAddr] = num;
     }
+    // if the processor is big-endian
     else
     {
         if (num >= 16777216)
@@ -155,4 +174,31 @@ void splitBytes(unsigned char *arr, int startAddr, int num)
         }
         arr[startAddr + 3] = num;
     }
+}
+
+
+/*
+* write out the bytes in a bitmap data array to create the image
+* file name has a maximum length of 64 characters
+*/
+void writeBitmap(
+    unsigned char *bitmapData,
+    int width,
+    int height,
+    int fileSize
+)
+{
+    // variable declaration
+
+    FILE *fp;
+    // code
+
+    fp = fopen("bitmap.bmp", "w+");
+
+    // write each byte in the bitmap data to the output file
+    for (int i = 0; i < fileSize; i++)
+    {
+        fputc(bitmapData[i], fp);
+    }
+    free(bitmapData);
 }
