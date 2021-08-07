@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 // project (local) includes
+#include "dev/1.0.0-multithread/thread/threadpool.h"
 
 /* type definitions */
     /* Queue System */
@@ -28,7 +29,6 @@ typedef struct Queue{
 }Queue;
 
     /* Thread Pool */
-typedef void *(*thread_function)(void *);
 
 typedef struct ThreadPool{
     pthread_t *threads;
