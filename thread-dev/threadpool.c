@@ -44,6 +44,11 @@ threadpool_free()
 
 }
 
+/**
+ * Add a task to the threadpool task queue 
+ * pool -> pointer to the threadpool structure
+ * task -> pointer to the task structure 
+**/
 extern void 
 threadpool_add(threadpool_t *pool, threadpool_task_t *task)
 {
@@ -60,4 +65,15 @@ threadpool_add(threadpool_t *pool, threadpool_task_t *task)
         task->prev = task->next = NULL;
     }
     pool->count++;
+}
+
+/**
+ * The function that each thread in the pool executes until the pool is
+ * shut down or all tasks have been completed
+ * pool -> pointer to the threadpool structure
+**/
+static void
+threadpool_thread(void *threadpool)
+{
+    threadpool_t *pool = (threadpool_t *) threadpool;
 }
