@@ -3,7 +3,13 @@
 // include guard
 #ifndef THREADPOOL_H
 #define THREADPOOL_H
-typedef struct 
+
+/* Forward declaration of structs */
+typedef struct threadpool_task_t threadpool_task_t;
+typedef struct threadpool_t threadpool_t;
+
+/* define structs */
+typedef struct threadpool_task_t
 {
     void *(*function)(void *);
     void *arg;
@@ -12,11 +18,11 @@ typedef struct
 }threadpool_task_t;
 
 
-typedef struct 
+typedef struct threadpool_t
 {
-    pthread_mutex_t *task_lock;     // lock used for fetching the task
-    pthread_mutex_t *result_lock;   // lock used for processing results
-    pthread_cond_t *condition;      // condition variable
+    pthread_mutex_t task_lock;     // lock used for fetching the task
+    pthread_mutex_t result_lock;   // lock used for processing results
+    pthread_cond_t condition;      // condition variable
     int num_threads;                // the number of threads to utilise
     pthread_t *threads;             // array containing each thread
     threadpool_task_t *head;        // front of the task queue
