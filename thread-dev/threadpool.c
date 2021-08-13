@@ -44,6 +44,7 @@ threadpool_create(int numThreads)
             return NULL;
         }
         printf("Created thread %d\n", i);    
+        pthread_detach(pool->threads[i]);
     }
 
     while (pool->started != 0 && pool->shutdown == 0)
@@ -109,10 +110,14 @@ static void
         /* Acquire lock before accessing shared data*/
         
         pthread_mutex_lock(&pool->task_lock);
-        while (pool->count == 0)
+        while (pool->count == 0 && pool->shutdown == 0)
         {
             printf("Waiting for tasks\n");
             pthread_cond_wait(&pool->condition, &pool->task_lock);
+        }
+        if (pool->shutdown != 0)
+        {
+            break;
         }
 
         if (pool->head)
@@ -128,16 +133,29 @@ static void
             pthread_mutex_unlock(&pool->task_lock);
             continue;
         }
+        pool->started++;
         pthread_mutex_unlock(&pool->task_lock);
 
         /* Execute thread function */
-        task->function((void *)task->arg);
- 
-        printf("Task Complete\n");
+        if (task != NULL)
+        {
+            task->function((void *)task->arg);
+            free(task);
+        }
+        printf("Task complete\n");
+
+        pthread_mutex_lock(&pool->task_lock);
+        pool->started--;
+        if (pool->shutdown == 0 && pool->started == 0 && pool->count == 0)
+        {
+            pthread_cond_signal(&pool->condition);
+        }
+        pthread_mutex_unlock(&pool->task_lock);
 
     }
+    pthread_cond_signal(&(pool->condition));
     pthread_mutex_unlock(&pool->task_lock);
-    pthread_exit(NULL);
+    return NULL;
 }
 
 void *myTask(void *num)
