@@ -20,15 +20,16 @@ typedef struct threadpool_task_t
 
 typedef struct threadpool_t
 {
-    pthread_mutex_t task_lock;     // lock used for fetching the task
-    pthread_mutex_t result_lock;   // lock used for processing results
-    pthread_cond_t condition;      // condition variable
+    pthread_mutex_t task_lock;      // lock used for fetching the task
+    pthread_mutex_t result_lock;    // lock used for processing results
+    pthread_cond_t condition;       // condition variable
     int num_threads;                // the number of threads to utilise
     pthread_t *threads;             // array containing each thread
     threadpool_task_t *head;        // front of the task queue
     threadpool_task_t *tail;        // rear of the task queue
     int count;                      // number of tasks to complete
     int started;                    // number of threads currently running
+    int shutdown;                   // is the threadpool shutting down?
 
 }threadpool_t;
 

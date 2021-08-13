@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+/* only needed for testing */
+#include <unistd.h>
 
 /* project includes */
 #include "threadpool.h"
@@ -26,6 +28,7 @@ threadpool_create(int numThreads)
     pool->num_threads = numThreads;
     pool->head = pool->tail = NULL;
     pool->started = pool->count = 0;
+    pool->shutdown = 0;
     pthread_cond_init(&pool->condition, NULL);
     pthread_mutex_init(&pool->task_lock, NULL);
     pthread_mutex_init(&pool->result_lock, NULL);
@@ -43,12 +46,23 @@ threadpool_create(int numThreads)
         printf("Created thread %d\n", i);    
     }
 
+    while (pool->started != 0 && pool->shutdown == 0)
+    {
+        continue;
+    }
+
     return pool;
 }
 
 extern void
-threadpool_free()
+threadpool_shutdown(threadpool_t *pool)
 {
+    threadpool_task_t *task;
+    while (pool->count != 0)
+    {
+
+    }
+    free(pool);
     return;
 }
 
@@ -97,6 +111,7 @@ static void
         pthread_mutex_lock(&pool->task_lock);
         while (pool->count == 0)
         {
+            printf("Waiting for tasks\n");
             pthread_cond_wait(&pool->condition, &pool->task_lock);
         }
 
@@ -110,22 +125,40 @@ static void
             } else pool->head = pool->tail = NULL;
             pool->count--;
         } else {
-            break;
+            pthread_mutex_unlock(&pool->task_lock);
+            continue;
         }
         pthread_mutex_unlock(&pool->task_lock);
 
         /* Execute thread function */
         task->function((void *)task->arg);
+ 
+        printf("Task Complete\n");
 
     }
     pthread_mutex_unlock(&pool->task_lock);
     pthread_exit(NULL);
 }
 
+void *myTask(void *num)
+{
+    sleep(2);
+}
+
 int main()
 {
     threadpool_t *pool;
-    pool = threadpool_create(10);
+    pool = threadpool_create(2);
+    int numTasks = 2;
+    threadpool_task_t *tasks[numTasks];
+
+    /*
+    for (int i = 0; i < numTasks; i++)
+    {
+        tasks[i]->function = myTask;
+        tasks[i]->arg = NULL;
+        threadpool_add(pool, tasks[i]);
+    } */
 
     printf("Program execution complete\n");
     return 0;
