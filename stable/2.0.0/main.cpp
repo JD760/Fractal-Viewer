@@ -2,19 +2,17 @@
 #include <iostream>
 /* Local includes */
 #include "bitmap.hpp"
-#include "mandelbrot.hpp"
+#include "fractals.hpp"
 #include "colouring.hpp"
-#include "burningship.hpp"
-#include "tricorn.hpp"
 
 int main() {
     int width = 1920;
     int height = 1080;
-    int maxIterations = 3000;
-    double xScale = 0.5;
-    double yScale = 0.5;
+    int maxIterations = 1000;
+    double xScale = 3.0;
+    double yScale = 3.0;
     Point center = {
-        1.0,   // Re
+        -0.5,   // Re
         0.0     // Im
     };
 
@@ -23,6 +21,10 @@ int main() {
         -0.5251993,
         -0.5251993
     };
+
+    // for relevant iterators, the power to raise the iteration calculations to 
+    // such that z = z^n + c
+    int power = 3;
 
     // calculate necessary data to create a bitmap image
     // padding bytes ensure each row of pixels is the same length
@@ -42,10 +44,11 @@ int main() {
     std::cout << "Created bitmap file\n";
 
     // Calculate fractal data
-    //IteratePixels(width, height, xScale, yScale, center, maxIterations, iterationData);
+    //IteratePixelsMandelbrot(width, height, xScale, yScale, center, maxIterations, iterationData);
     //juliaSet(width, height, xScale, yScale, seed, center, maxIterations, iterationData);
     //burningShip(width, height, xScale, yScale, center, maxIterations, iterationData);
-    tricorn(width, height, xScale, yScale, center, maxIterations, iterationData);
+    //tricorn(width, height, xScale, yScale, center, maxIterations, iterationData);
+    iteratePixels(width, height, xScale, yScale, center, seed, power, maxIterations, iterationData, tricornIterator);
 
     std::cout << "Iterated over pixels\n";
 

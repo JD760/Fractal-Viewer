@@ -31,8 +31,8 @@ void modulusColouring(
                 int mod = iterationData[pixelsIterated] % 255;
                 // changing these can adjust the colour profile - maybe add settings for this later?
                 currentPixel.Red = mod;
-                currentPixel.Blue = ceil(mod / 4);
-                currentPixel.Green = ceil(mod / 4);
+                currentPixel.Blue = ceil(mod);
+                currentPixel.Green = ceil(mod / 2.5);
             } 
 
             // update the bitmap data with the new pixel colouring
